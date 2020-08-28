@@ -1,0 +1,77 @@
+// https://www.dbml.org/docs/
+
+// Legend:
+// Trimmable (Attribute) -> Data that can be warehoused by deleting older data from production after backing up everything into data warehouse
+
+Project Teletif {
+  database_type: 'PostgreSQL'
+  Note: 'Main SQL DB for Teletif'
+}
+
+// Business organisations
+Table organisations {
+  id int [pk, increment, not null]
+  createdAt bigint [default: `EXTRACT(EPOCH FROM now() at time zone 'utc')`]
+  name varchar [not null]
+  email varchar [not null] // Main email associated with the org where everything from billing and invoices go to
+  phoneNumber varchar [null] // Includes area code // Should be used to prevent spam
+  website varchar [null] // Optional used for verification and spam prevention
+  verified_email boolean [null]
+  verified_phone boolean [null]
+  verified boolean [null] // Is the business verified by us teletif
+  deleted boolean [null] // Set this to true if deleted and leave as null if not
+}
+
+// Individual developers (employees) of a Business organisation
+// Accounts under a organisation, to create API tokens and to monitor API status and more.
+Table developerAccounts {
+  id int [pk, increment, not null, unique]
+  createdAt bigint [default: `EXTRACT(EPOCH FROM now() at time zone 'utc')`]
+  organisationID int [ref: > organisations.id, not null]
+  admin boolean [default: false] // Might not need this
+  permissions varchar // To split it out into another table
+  email varchar [not null] // Should we ensure that the user's email domain is the same as the businessOrganisations'
+  name varchar [not null]
+  verified_email boolean [null]
+  deleted boolean [null] // Set this to true if deleted and leave as null if not
+}
+
+// Consider moving this to NoSQL/FS
+Table developerSettings {
+  userID int [pk, not null, ref: - developerAccounts.id]
+  // @todo Add a updatedAt timestamp
+}
+
+// @todo Might wanna store link to the bot, but how to update if the name of bot is updated? Or can the name be changed?
+Table bots {
+  id int [pk, increment, not null, unique]
+  createdAt bigint [default: `EXTRACT(EPOCH FROM now() at time zone 'utc')`]
+  createdBy int [ref: > developerAccounts.id, not null]
+  organisationID int [ref: > organisations.id, not null]
+  name varchar [not null, unique] // Maybe use ID or tokeN? that maps to vault entry?
+  description varchar [null] // optional description
+}
+
+// Accounts for app users / Users who recieve notifications
+// Values with "t_" prepended means values from telegram
+Table users {
+  id int [pk, increment, not null, unique]
+  createdAt bigint [default: `EXTRACT(EPOCH FROM now() at time zone 'utc')`]
+  botID int [ref: > bots.id, not null]
+  app_UUID varchar [not null] // Allow developers to uniquely identify their own users however they want.
+  t_chat_id varchar [not null] // telegram chat ID
+  deleted boolean [default: false]
+}
+
+// Tags describing users, set by the developers
+// Give users tags to filter and send to specific group of users
+// Used to group user's together to mass mail them
+Table userTags {
+  id bigint [pk, increment, not null, unique]
+  createdAt bigint [default: `EXTRACT(EPOCH FROM now() at time zone 'utc')`]
+  userID int [ref: > users.id, not null]
+
+  // Can be in any format the developer wants it to be, can be a UUID or just simple strings
+  // e.g. timezone, countryCode
+  tag varchar [not null]
+}
