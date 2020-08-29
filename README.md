@@ -13,7 +13,7 @@ The other repos for teletif:
     - Allows admin API to register new notifications scheduled
     - Allows admin API to get number of notifications sent already and the limit on a particular token/bot/organization
     - In charge of charging the user
-- Notification
+- Notify
     - Internal Service that actually sends the notifications
     - This is basically a webhook listener and Bot runner
     - Might change to use a pub/sub method instead of using HTTPS based webhooks
