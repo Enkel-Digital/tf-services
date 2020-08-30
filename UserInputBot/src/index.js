@@ -1,22 +1,10 @@
-/*
-
-the notifier service
-
-will have a webhook to trigger this service to start running. The webhook user will be the scheduler service
-when this service starts up, this will see the request ID from the scheduler service.
-read the request from the request DB
-get all users' chatIDs from the userDB
-send out the notifications to every specified user based on the request spec (a json perhaps to specify how and who to send notifications)
-
-*/
-
 require("dotenv").config();
 
-const { PollingBot, shortHands } = require("../src/index");
+const { PollingBot, shortHands } = require("yatbl");
 const bot = new PollingBot(process.env.BOT_TOKEN);
 const tapi = bot.tapi;
 
-// @todo Dont repeat this...
+// @todo Dont repeat this... this should be ran for each bot, ON their bot token registration event.
 // Set the list of commands first on startup
 shortHands.setCommands(tapi, [
   { command: "start", description: "Start the bot" },
@@ -26,40 +14,22 @@ shortHands.setCommands(tapi, [
 ]);
 
 bot.addShortHand(shortHands.replyMessage);
-bot.addShortHand(shortHands.getCommand);
 
 // Simple mock DB
 const DB = {
   chatIDs: [],
 };
 
-// SQL way of finding chatIDs for a specific request
-// DB("users")
-//   .join("userTags", "users.id", "=", "userTags.userID")
-//   .where({ appID })
-//   .where(() => {
-//     where({ tag1 })
-//       .orWhere({ tag2 })
-//       .orWhere({ tag2 })
-//       .orWhere({ tag2 })
-//       .orWhere({ tag2 });
-//   })
-//   .select("chatIDs");
-
 /**
  * Handler for start commands, where users register their
  */
-bot.addHandler(async function (update) {
-  const startCommands = this.getCommand("start");
-  // Skip this handler if there is no start command
-  if (!startCommands) return;
-
+bot.onCommand("start", function (parsedCommand) {
   // If the arguement for the first start command is null (empty) and no need to await too.
-  if (!startCommands[0]) return this.replyMessage("Invalid register UUID");
+  if (!parsedCommand[0]) return this.replyMessage("Invalid registration UUID");
 
   // register the user
   // @todo Handle re-registrations, should not have double registration
-  console.log(startCommands[0][0]);
+  console.log("User registration token:", parsedCommand[0][0]);
   DB.chatIDs.push(update.message.chat.id);
   return this.replyMessage("Successfully registered for notifications!");
 });
@@ -67,10 +37,10 @@ bot.addHandler(async function (update) {
 /**
  * Handler for unsub commands, where users request to unsubscribe for notifications
  */
-bot.addHandler(async function (update) {
-  const unsubCommands = this.getCommand("unsub");
-  // Skip this handler if there is no unsub command
-  if (!unsubCommands) return;
+bot.onCommand("unsub", function (parsedCommand, update) {
+  // using chat id instead of from id, allow grp notifs, so like unsub from grp instead of just a user
+  console.log("unsub:", update.message.from.id);
+  console.log("unsub:", update.message.chat.id);
 
   // Remove the user
   const index = DB.chatIDs.indexOf(update.message.chat.id);
@@ -91,11 +61,5 @@ setInterval(function () {
     })
   );
 }, 10000);
-
-app.post("/:BOT_TOKEN", function (req, res) {
-  bot._onUpdate(update);
-  // since this one cannot respond right, what about
-  webhookBot.apiCall();
-});
 
 bot.startPolling(0);
