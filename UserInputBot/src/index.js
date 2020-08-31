@@ -40,6 +40,10 @@ bot.onCommand("start", async function (parsedCommand, update) {
       .where({ token })
       .select("botID", "app_UUID");
 
+    // Ensure that there is a valid pending user
+    if (!pendingUser)
+      throw new Error("Invalid token! Contact app developer for help"); // @todo Might allow devs to customize error message
+
     // Insert the preset values of pending user along with the telegram chat ID
     await SQLdb("users").insert({
       botID: pendingUser.botID,
