@@ -17,7 +17,21 @@
   },
   "homepage": "https://github.com/Enkel-Digital/tf-bots#readme",
   "dependencies": {
+    "@enkeldigital/ce-sql": "^0.1.0",
     "dotenv": "^8.2.0",
-    "yatbl": "^0.2.1"
+    "yatbl": "^0.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.7.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-mocha": "^8.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "lint-staged": "^10.2.13",
+    "prettier": "^2.1.1"
   }
 }

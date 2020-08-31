@@ -41,7 +41,7 @@
     "request-promise-native": "^1.0.9",
     "unixseconds": "^0.1.0",
     "validator": "^13.1.1",
-    "yatbl": "^0.4.0"
+    "yatbl": "^0.4.1"
   },
   "devDependencies": {
     "docdash": "^1.2.0",
