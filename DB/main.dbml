@@ -47,9 +47,24 @@ Table bots {
   id int [pk, increment, not null, unique]
   createdAt bigint [default: `EXTRACT(EPOCH FROM now() at time zone 'utc')`]
   createdBy int [ref: > developerAccounts.id, not null]
+  // @todo Telegram bot token should be stored somewhere safer instead like vault or something.
+  token varchar [not null, unique] // Token for the telegram bot itself
   organisationID int [ref: > organisations.id, not null]
   name varchar [not null, unique] // Maybe use ID or tokeN? that maps to vault entry?
   description varchar [null] // optional description
+}
+
+
+// Table used to temporarily store user creation requests with their unique secret tokens for verification
+// Data will be deleted once user completes signup/onboarding process
+Table pending_users {
+  // Since token is unique, it is also used as the primary key
+  // Limit token length to 60, to be below telegram API's deep linking limit of 64 characters
+  token varchar(60) [pk, not null, unique]
+  // @todo DA can include a field to calculate average time it took from token/pending_user generated to user registration event
+  createdAt bigint [default: `EXTRACT(EPOCH FROM now() at time zone 'utc')`]
+  botID int [ref: > bots.id, not null]
+  app_UUID varchar [not null]
 }
 
 // Accounts for app users / Users who recieve notifications
