@@ -78,6 +78,11 @@ Table users {
   deleted boolean [default: false]
 }
 
+// Settings the user can set and save like diff notifications or what not
+Table userSettings {
+  id int [pk, not null, ref: - users.id]
+}
+
 // Tags describing users, set by the developers
 // Give users tags to filter and send to specific group of users
 // Used to group user's together to mass mail them
@@ -88,5 +93,6 @@ Table userTags {
 
   // Can be in any format the developer wants it to be, can be a UUID or just simple strings
   // e.g. timezone, countryCode
+  // @todo Limit the varchar length
   tag varchar [not null]
 }
