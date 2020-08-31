@@ -36,13 +36,19 @@ bot.onCommand("start", async function (parsedCommand, update) {
     // @todo Parse and verify token before using its data
     const token = deepLinkingArgs[0];
 
+    const pendingUser = await SQLdb("pending_users")
+      .where({ token })
+      .select("botID", "app_UUID");
+
+    // Insert the preset values of pending user along with the telegram chat ID
     await SQLdb("users").insert({
-      // @todo To get this value from token too instead of hardcoding it
-      botID: 1,
-      // @todo Will be an actual token instead of just app_UUID, doing it like this for now temporarily before token logic is implemented
-      app_UUID: token,
+      botID: pendingUser.botID,
+      app_UUID: pendingUser.app_UUID,
       t_chat_id: update.message.chat.id,
     });
+
+    // Delete the pending user row once the user has completed onboarding and data is inserted into "users" table
+    await SQLdb("pending_users").where({ token }).del();
 
     this.replyMessage("Successfully registered for notifications!");
   } catch (error) {
