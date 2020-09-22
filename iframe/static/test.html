@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Teletif iFrame test</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+    <!-- Some example content Security policies -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src https://192.168.1.112:8081 'self'; "> -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src https://127.0.0.1:8081 'self'; "> -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline' 'self' *; "> -->
+
+    <style>
+        iframe {
+            border: 1px solid black;
+            width: 20em;
+            height: 20em;
+        }
+    </style>
+
+    <script>
+        window.onload = function () {
+            window.document.getElementsByTagName("iframe")[0].src = `https://192.168.1.112:8081/?${Date.now()}`
+
+            window.document.getElementById("windowLocation").innerHTML = `windowLocation: ${window.location}`
+            window.document.getElementById("iframeLocation").innerHTML = `iframeLocation: ${window.document.getElementsByTagName("iframe")[0].src}`
+        }
+    </script>
+</head>
+
+<body>
+    <div>
+        <h1>iFrame test info:</h1>
+        <h2 id="windowLocation" />
+        <h2 id="iframeLocation" />
+    </div>
+    <hr>
+    <br>
+
+    <!-- Below is no cache option. No cache using random changing query -->
+    <iframe title="Contact Us form" frameborder="0" />
+
+    <!-- Below is the cachable option -->
+    <!-- <iframe src="https://192.168.1.112:8081/" title="Contact Us form" frameborder="0" /> -->
+</body>
+
+</html>
